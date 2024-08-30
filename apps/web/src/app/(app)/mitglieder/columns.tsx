@@ -3,6 +3,7 @@
 import { DataTableColumnHeader } from "@/components/table/datatable-column-header"
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
+import Link from "next/link"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -68,17 +69,41 @@ export const columns: ColumnDef<Mitglied>[] = [
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Geburtsdatum" />
         ),
+        cell: ({ row }) => {
+            const formatted = new Date(row.getValue("geburtsdatum")).toLocaleDateString("de-DE", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+            });
+
+            return <div>{formatted}</div>
+        },
     },
     {
         accessorKey: "email",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Email" />
         ),
+        cell: ({ row }) => {
+            const mail: string | null = row.getValue("email");
+
+            return (
+                <>
+                    {mail && <Link href={`mailto:${mail}`}>{mail}</Link>}
+                </>
+            )
+        },
     },
     {
-        accessorKey: "telefonnummer",
+        accessorKey: "telefon_mobil",
         header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Telefonnummer" />
+            <DataTableColumnHeader column={column} title="Mobil" />
+        ),
+    },
+    {
+        accessorKey: "telefon_festnetz",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Festnetz" />
         ),
     },
     {

@@ -15,7 +15,7 @@ const fontSans = FontSans({
 export const metadata: Metadata = {
     title: "Vereinsmanager",
     icons: {
-        icon: "/favicon.png"
+        icon: "/favicon.ico"
     }
 };
 

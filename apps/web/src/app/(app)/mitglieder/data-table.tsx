@@ -25,6 +25,8 @@ import { DataTablePagination } from "@/components/table/datatable-pagination"
 import { useState } from "react"
 import { DataTableViewOptions } from "@/components/table/datatable-view-options"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Contact, File } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -40,7 +42,12 @@ export function DataTable<TData, TValue>({
         []
     )
     const [columnVisibility, setColumnVisibility] =
-        useState<VisibilityState>({})
+        useState<VisibilityState>({
+            rolle: false,
+            created_at: false,
+            updated_at: false,
+        })
+    const [rowSelection, setRowSelection] = useState({})
 
     const table = useReactTable({
         data,
@@ -52,10 +59,12 @@ export function DataTable<TData, TValue>({
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
         state: {
             sorting,
             columnFilters,
             columnVisibility,
+            rowSelection,
         },
     })
 
@@ -70,7 +79,17 @@ export function DataTable<TData, TValue>({
                     }
                     className="max-w-sm"
                 />
-                <DataTableViewOptions table={table} />
+
+                <div className="ml-auto flex items-center gap-2">
+                    <Button size="sm" variant="outline" className="h-7 gap-1" disabled={table.getFilteredSelectedRowModel().rows.length == 0}>
+                        <Contact className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                            {table.getFilteredSelectedRowModel().rows.length > 1 ? `${table.getFilteredSelectedRowModel().rows.length} Kontakte` : 'Kontakt'} speichern
+                        </span>
+                    </Button>
+
+                    <DataTableViewOptions table={table} />
+                </div>
             </div>
             <div className="rounded-md border">
                 <Table>

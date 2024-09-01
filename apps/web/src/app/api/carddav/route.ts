@@ -13,7 +13,7 @@ export const GET = async (req: NextRequest) => {
     } else {
         return new Response(`Method ${method} Not Allowed`, {
             status: 405,
-            headers: { Allow: 'PROPFIND, REPORT' },
+            headers: { Allow: 'PROPFIND, REPORT, GET' },
         });
     }
 };
@@ -59,13 +59,34 @@ const handleReport = async (req: NextRequest) => {
 
 const convertToVCard = (contacts: any[]) => {
     // Convert your contacts data to vCard format
-    let vCards = contacts.map((contact) => `
-        BEGIN:VCARD
-        VERSION:3.0
-        FN:${contact.vorname} ${contact.nachname}
-        EMAIL:${contact.email}
-        END:VCARD
-  `);
+    let vCards = contacts.map((contact) => {
+        const address = formatAddress(`${contact.straße}, ${contact.postleitzahl} ${contact.stadt}`);
+        const birthday = formatBirthday(contact.geburtsdatum);
+
+        return `
+            BEGIN:VCARD
+            VERSION:3.0
+            FN:${contact.vorname} ${contact.nachname}
+            EMAIL:${contact.email}
+            TEL;TYPE=CELL:${contact.telefon_mobil}
+            TEL;TYPE=HOME,VOICE:${contact.telefon_festnetz}
+            ${address}
+            ${birthday}
+            END:VCARD
+        `
+    });
 
     return vCards.join('\n');
+};
+
+const formatAddress = (address: string) => {
+    if (!address) return '';
+    // Assuming address is a string or can be easily formatted
+    return `ADR;TYPE=HOME:;;${address.replace(/\n/g, ';')}`;
+};
+
+const formatBirthday = (dob: Date) => {
+    if (!dob) return '';
+    // Assuming dob is in YYYY-MM-DD format
+    return `BDAY:${dob}`;
 };

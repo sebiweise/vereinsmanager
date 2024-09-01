@@ -106,12 +106,14 @@ export const columns: ColumnDef<Mitglied>[] = [
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Mobil" />
         ),
+        enableSorting: false,
     },
     {
         accessorKey: "telefon_festnetz",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Festnetz" />
         ),
+        enableSorting: false,
     },
     {
         accessorKey: "straße",

@@ -8,12 +8,70 @@ export const GET = async (req: NextRequest) => {
         return handlePropfind(req);
     } else if (method === 'REPORT') {
         return handleReport(req);
-    } else if (method === 'GET') {
-        return handlePropfind(req);
     } else {
         return new Response(`Method ${method} Not Allowed`, {
             status: 405,
-            headers: { Allow: 'PROPFIND, REPORT, GET' },
+            headers: { Allow: 'PROPFIND, REPORT' },
+        });
+    }
+};
+
+export const POST = async (req: NextRequest) => {
+    const { method } = req;
+
+    if (method === 'POST') {
+        return handleExportContacts(req);
+    } else {
+        return new Response(`Method ${method} Not Allowed`, {
+            status: 405,
+            headers: { Allow: 'POST' },
+        });
+    }
+};
+
+const handleExportContacts = async (req: NextRequest) => {
+    try {
+        const supabase = createClient();
+        // Parse request body to get list of IDs
+        const { ids } = await req.json();
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return new Response(JSON.stringify({ error: 'Invalid IDs provided' }), {
+                status: 400,
+            });
+        }
+
+        const {
+            data: { user },
+            error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+            return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+                status: 401,
+            });
+        }
+
+        // Fetch contacts from Supabase with matching IDs
+        const { data: contacts, error: contactsError } = await supabase
+            .from('mitglieder')
+            .select('*')
+            .in('id', ids);
+
+        if (contactsError) {
+            return new Response(JSON.stringify({ error: 'Failed to fetch contacts' }), {
+                status: 500,
+            });
+        }
+
+        const vCardData = convertToVCard(contacts);
+        return new Response(vCardData, {
+            status: 200,
+            headers: { 'Content-Type': 'text/vcard' },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: 'Failed to process request' }), {
+            status: 500,
         });
     }
 };

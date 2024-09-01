@@ -26,7 +26,7 @@ import { useState } from "react"
 import { DataTableViewOptions } from "@/components/table/datatable-view-options"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Contact, File } from "lucide-react"
+import { Contact } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -68,6 +68,39 @@ export function DataTable<TData, TValue>({
         },
     })
 
+    const exportContacts = async () => {
+        const ids = table.getSelectedRowModel().rows.map(r => Number(r.getValue('id')));
+        const response = await fetch('/api/carddav', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ids }),
+        });
+
+        if (response.ok) {
+            const vCardData = await response.text();
+
+            // Create a Blob from the vCard data
+            const blob = new Blob([vCardData], { type: 'text/vcard' });
+            const url = URL.createObjectURL(blob);
+
+            // Create an anchor element and trigger the download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'contacts.vcf';
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } else {
+            const errorData = await response.json();
+            console.error('Error exporting contacts:', errorData);
+        }
+    };
+
     return (
         <div>
             <div className="flex items-center py-4">
@@ -81,10 +114,11 @@ export function DataTable<TData, TValue>({
                 />
 
                 <div className="ml-auto flex items-center gap-2">
-                    <Button size="sm" variant="outline" className="h-7 gap-1" disabled={table.getFilteredSelectedRowModel().rows.length == 0}>
+                    <Button size="sm" variant="outline" className="h-7 gap-1" disabled={table.getSelectedRowModel().rows.length == 0}
+                        onClick={exportContacts}>
                         <Contact className="h-3.5 w-3.5" />
                         <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            {table.getFilteredSelectedRowModel().rows.length > 1 ? `${table.getFilteredSelectedRowModel().rows.length} Kontakte` : 'Kontakt'} speichern
+                            {table.getSelectedRowModel().rows.length > 1 ? `${table.getSelectedRowModel().rows.length} Kontakte` : 'Kontakt'} speichern
                         </span>
                     </Button>
 

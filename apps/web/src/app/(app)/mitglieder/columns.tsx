@@ -8,7 +8,7 @@ import Link from "next/link"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Mitglied = {
-    id: string
+    id: number
     nachname: string
     vorname: string
     rolle: string
@@ -44,6 +44,13 @@ export const columns: ColumnDef<Mitglied>[] = [
             />
         ),
         enableSorting: false,
+        enableHiding: false,
+    },
+    {
+        accessorKey: "id",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="ID" />
+        ),
         enableHiding: false,
     },
     {

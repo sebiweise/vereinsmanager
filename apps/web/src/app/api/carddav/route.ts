@@ -4,10 +4,6 @@ import { type NextRequest, NextResponse } from 'next/server';
 export const GET = async (req: NextRequest) => {
     const { method } = req;
 
-    console.log(`Received method: ${req.method}`);
-    // console.log(`User: ${user}`);
-    // console.error(`Error: ${error}`);
-
     if (method === 'PROPFIND') {
         return handlePropfind(req);
     } else if (method === 'REPORT') {

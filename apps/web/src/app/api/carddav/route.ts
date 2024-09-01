@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { type NextRequest, NextResponse } from 'next/server';
+import { vCard } from 'vcards-ts'
 
 export const GET = async (req: NextRequest) => {
     const { method } = req;
@@ -118,23 +119,26 @@ const handleReport = async (req: NextRequest) => {
 const convertToVCard = (contacts: any[]) => {
     // Convert your contacts data to vCard format
     let vCards = contacts.map((contact) => {
-        const address = formatAddress(`${contact.straße}, ${contact.postleitzahl} ${contact.stadt}`);
-        const birthday = formatBirthday(contact.geburtsdatum);
+        var card = new vCard();
+        card.firstName = contact.vorname;
+        card.lastName = contact.nachname;
+        card.organization = 'Löschgruppe 3';
+        card.cellPhone = contact.telefon_mobil;
+        if (contact.telefon_festnetz)
+            card.homePhone = contact.telefon_festnetz;
+        card.birthday = new Date(contact.geburtsdatum);
+        if (contact.rolle)
+            card.title = contact.rolle;
+        card.homeAddress = {
+            street: contact.straße,
+            city: contact.stadt,
+            postalCode: contact.postleitzahl,
+        }
 
-        return `
-BEGIN:VCARD
-VERSION:3.0
-FN:${contact.vorname} ${contact.nachname}
-EMAIL:${contact.email}
-TEL;TYPE=CELL:${contact.telefon_mobil}
-TEL;TYPE=HOME:${contact.telefon_festnetz}
-${address}
-${birthday}
-END:VCARD
-        `.trim();
+        return card;
     });
 
-    return vCards.join('\n');
+    return vCards.map(card => card.getFormattedString()).join("");
 };
 
 const formatAddress = (address: string) => {

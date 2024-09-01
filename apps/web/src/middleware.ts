@@ -2,12 +2,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-    const { method } = request;
+    // const { method } = request;
 
-    if (method === 'PROPFIND' || method === 'REPORT') {
-        console.log(request)
-        return NextResponse.next();
-    }
+    // if (method === 'PROPFIND' || method === 'REPORT') {
+    //     console.log(request)
+    //     return NextResponse.next();
+    // }
 
     return await updateSession(request)
 }

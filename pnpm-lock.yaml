@@ -86,6 +86,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.10(ts-node@10.9.1(@types/node@20.11.24)(typescript@5.3.3)))
+      vcards-ts:
+        specifier: ^1.0.7
+        version: 1.0.7
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -3320,6 +3323,9 @@ packages:
   validate-npm-package-name@5.0.0:
     resolution: {integrity: sha512-YuKoXDAhBYxY7SfOKxHBDoSyENFeW5VvIIQp2TGQuit8gpK6MnWaQelBKxso72DoxTZfZdcP3W90LqpSkgPzLQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+
+  vcards-ts@1.0.7:
+    resolution: {integrity: sha512-5jMFMkUsRJ/I9QjvRPhJv/zH74puJR1BPo2XXXwrDtBkRbFUxQN6+R4zE28Ylkxtx+m9FrUqQSaMNOPK4YV0tA==}
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -6990,6 +6996,8 @@ snapshots:
   validate-npm-package-name@5.0.0:
     dependencies:
       builtins: 5.0.1
+
+  vcards-ts@1.0.7: {}
 
   wcwidth@1.0.1:
     dependencies:

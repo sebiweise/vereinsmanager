@@ -48,7 +48,7 @@ export function DataTable<TData, TValue>({
     )
     const [columnVisibility, setColumnVisibility] =
         useState<VisibilityState>({
-            id: false,
+            // id: false,
             rolle: false,
             created_at: false,
             updated_at: false,
@@ -75,7 +75,9 @@ export function DataTable<TData, TValue>({
     })
 
     const exportContacts = async () => {
-        const ids = table.getSelectedRowModel().rows.map(r => Number(r.getValue('id')));
+        const rows = table.getSelectedRowModel().rows.length == 0 ? table.getSortedRowModel().rows : table.getSelectedRowModel().rows
+        const ids = rows.map(r => Number(r.getValue('id')));
+
         const response = await fetch('/api/carddav', {
             method: 'POST',
             headers: {
@@ -107,6 +109,17 @@ export function DataTable<TData, TValue>({
         }
     };
 
+    const exportButtonText = () => {
+        switch (table.getSelectedRowModel().rows.length) {
+            case 0:
+                return "Alle Kontakte";
+            case 1:
+                return "1 Kontakt";
+            default:
+                return `${table.getSelectedRowModel().rows.length} Kontakte`;
+        }
+    };
+
     return (
         <div>
             <div className="flex items-center py-4">
@@ -120,11 +133,15 @@ export function DataTable<TData, TValue>({
                 />
 
                 <div className="ml-auto flex items-center gap-2">
-                    <Button size="sm" variant="outline" className="h-7 gap-1" disabled={table.getSelectedRowModel().rows.length == 0}
-                        onClick={exportContacts}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 gap-1"
+                        onClick={exportContacts}
+                    >
                         <Contact className="h-3.5 w-3.5" />
                         <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                            {table.getSelectedRowModel().rows.length > 1 ? `${table.getSelectedRowModel().rows.length} Kontakte` : 'Kontakt'} speichern
+                            {exportButtonText()} speichern
                         </span>
                     </Button>
 

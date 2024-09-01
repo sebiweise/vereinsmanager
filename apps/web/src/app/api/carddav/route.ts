@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
 import { type NextRequest, NextResponse } from 'next/server';
-import { vCard } from 'vcards-ts'
 
 export const GET = async (req: NextRequest) => {
     const { method } = req;
@@ -119,27 +118,36 @@ const handleReport = async (req: NextRequest) => {
 const convertToVCard = (contacts: any[]) => {
     // Convert your contacts data to vCard format
     let vCards = contacts.map((contact) => {
-        var card = new vCard();
-        card.firstName = contact.vorname;
-        card.lastName = contact.nachname;
-        card.organization = 'Löschgruppe 3';
-        card.cellPhone = contact.telefon_mobil;
+        let vCard: string = "BEGIN:VCARD\nVERSION:3\n";
+        vCard += `FN;CHARSET=UTF-8:${contact.vorname} ${contact.nachname}\n`
+        vCard += `N;CHARSET=UTF-8:${contact.nachname};${contact.vorname};;;\n`
+        vCard += `BDAY:${formatDateToYYYYMMDD(new Date(contact.geburtsdatum))}\n`
+        vCard += `TEL;TYPE=CELL:${contact.telefon_mobil}\n`
         if (contact.telefon_festnetz)
-            card.homePhone = contact.telefon_festnetz;
-        card.birthday = new Date(contact.geburtsdatum);
+            vCard += `TEL;TYPE=HOME,VOICE:${contact.telefon_festnetz}\n`
+        vCard += `ADR;CHARSET=UTF-8;TYPE=HOME:;;${contact.straße};${contact.stadt};;${contact.postleitzahl};\n`
         if (contact.rolle)
-            card.title = contact.rolle;
-        card.homeAddress = {
-            street: contact.straße,
-            city: contact.stadt,
-            postalCode: contact.postleitzahl,
-        }
+            vCard += `TITLE;CHARSET=UTF-8:${contact.rolle}\n`
+        vCard += `ORG;CHARSET=UTF-8:Löschgruppe 3\n`
+        vCard += "END:VCARD"
 
-        return card;
+        return vCard;
     });
 
-    return vCards.map(card => card.getFormattedString()).join("");
+    return vCards.join("\n");
 };
+
+function formatDateToYYYYMMDD(date: Date): string {
+    const year = date.getFullYear();
+
+    // getMonth() returns month from 0 to 11, so we add 1 and pad with zeros if necessary
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+
+    // getDate() returns the day of the month, pad with zeros if necessary
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}${month}${day}`;
+}
 
 const formatAddress = (address: string) => {
     if (!address) return '';

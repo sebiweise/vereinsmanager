@@ -122,16 +122,16 @@ const convertToVCard = (contacts: any[]) => {
         const birthday = formatBirthday(contact.geburtsdatum);
 
         return `
-            BEGIN:VCARD
-            VERSION:3.0
-            FN:${contact.vorname} ${contact.nachname}
-            EMAIL:${contact.email}
-            TEL;TYPE=CELL:${contact.telefon_mobil}
-            TEL;TYPE=HOME,VOICE:${contact.telefon_festnetz}
-            ${address}
-            ${birthday}
-            END:VCARD
-        `
+BEGIN:VCARD
+VERSION:3.0
+FN:${contact.vorname} ${contact.nachname}
+EMAIL:${contact.email}
+TEL;TYPE=CELL:${contact.telefon_mobil}
+TEL;TYPE=HOME:${contact.telefon_festnetz}
+${address}
+${birthday}
+END:VCARD
+        `.trim();
     });
 
     return vCards.join('\n');
@@ -140,7 +140,7 @@ const convertToVCard = (contacts: any[]) => {
 const formatAddress = (address: string) => {
     if (!address) return '';
     // Assuming address is a string or can be easily formatted
-    return `ADR;TYPE=HOME:;;${address.replace(/\n/g, ';')}`;
+    return `ADR;TYPE=HOME:${address.replace(/\n/g, ';')}`;
 };
 
 const formatBirthday = (dob: Date) => {

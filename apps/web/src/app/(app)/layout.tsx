@@ -9,6 +9,7 @@ import {
   Package,
   Package2,
   PanelLeft,
+  Search,
   Settings,
   Users,
   Users2,
@@ -25,6 +26,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -221,6 +223,14 @@ export default function AppLayout({
               ))}
             </BreadcrumbList>
           </Breadcrumb>
+          <div className="relative ml-auto flex-1 md:grow-0">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Suche..."
+              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+            />
+          </div>
           <ThemeModeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

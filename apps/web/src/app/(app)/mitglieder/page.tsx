@@ -1,8 +1,9 @@
-import { Mitglied, columns } from "./columns"
+import { Tables } from "@/types/database.types";
+import { columns } from "./columns"
 import { DataTable } from "./data-table"
 import { createClient } from '@/utils/supabase/server';
 
-async function getData(): Promise<Mitglied[]> {
+async function getData(): Promise<Tables<'mitglieder'>[]> {
     const supabase = createClient();
     const { data: mitglieder } = await supabase.from("mitglieder").select();
 

@@ -4,26 +4,9 @@ import { DataTableColumnHeader } from "@/components/table/datatable-column-heade
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
+import { Tables } from "@/types/database.types"
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Mitglied = {
-    id: number
-    nachname: string
-    vorname: string
-    rolle: string
-    geburtsdatum: Date
-    email: string
-    telefonnummer: string
-    straße: string
-    stadt: string
-    postleitzahl: string
-    status: string
-    created_at: Date
-    updated_at: Date
-}
-
-export const columns: ColumnDef<Mitglied>[] = [
+export const columns: ColumnDef<Tables<'mitglieder'>>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -116,7 +99,7 @@ export const columns: ColumnDef<Mitglied>[] = [
         enableSorting: false,
     },
     {
-        accessorKey: "straße",
+        accessorKey: "strasse",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Straße" />
         ),

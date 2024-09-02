@@ -47,12 +47,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { ThemeModeToggle } from "@/components/theme-mode-toggle"
+import { createClient } from '@/utils/supabase/client'
 
 export default function AppLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = createClient()
   const pathname = usePathname()
 
   // Generate breadcrumbs based on current path

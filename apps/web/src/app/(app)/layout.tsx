@@ -1,3 +1,6 @@
+"use client"
+
+import { Fragment } from "react"
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
 import {
@@ -207,12 +210,14 @@ export default function AppLayout({
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {breadcrumbs.map((breadcrumb, index) => (
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link href={breadcrumb.href}>{breadcrumb.name}</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
+                <Fragment key={breadcrumb.href}>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href={breadcrumb.href}>{breadcrumb.name}</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </Fragment>
               ))}
             </BreadcrumbList>
           </Breadcrumb>

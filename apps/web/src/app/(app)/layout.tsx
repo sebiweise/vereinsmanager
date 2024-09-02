@@ -1,23 +1,25 @@
-import Image from "next/image"
 import Link from "next/link"
+import { usePathname } from 'next/navigation'
 import {
   Home,
   LineChart,
   Package,
   Package2,
   PanelLeft,
-  Search,
   Settings,
   Users,
   Users2,
 } from "lucide-react"
-
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage
+} from "@/components/ui/avatar"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
@@ -29,8 +31,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger
+} from "@/components/ui/sheet"
 import {
   Tooltip,
   TooltipContent,
@@ -43,6 +48,14 @@ export default function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname()
+
+  // Generate breadcrumbs based on current path
+  const breadcrumbs = pathname.split('/').filter(Boolean).map((segment, index, array) => ({
+    name: segment.charAt(0).toUpperCase() + segment.slice(1),
+    href: '/' + array.slice(0, index + 1).join('/'),
+  }))
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -193,26 +206,16 @@ export default function AppLayout({
                   <Link href="/">Dashboard</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">Products</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>All Products</BreadcrumbPage>
-              </BreadcrumbItem>
+              {breadcrumbs.map((breadcrumb, index) => (
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href={breadcrumb.href}>{breadcrumb.name}</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+              ))}
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="relative ml-auto flex-1 md:grow-0">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Suche..."
-              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
-            />
-          </div>
           <ThemeModeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -221,13 +224,10 @@ export default function AppLayout({
                 size="icon"
                 className="overflow-hidden rounded-full"
               >
-                <Image
-                  src="/placeholder-user.jpg"
-                  width={36}
-                  height={36}
-                  alt="Avatar"
-                  className="overflow-hidden rounded-full"
-                />
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder-user.jpg" alt="@user" />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

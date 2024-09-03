@@ -11,6 +11,7 @@ import {
   PanelLeft,
   Search,
   Settings,
+  Siren,
   Users,
   Users2,
 } from "lucide-react"
@@ -47,14 +48,34 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { ThemeModeToggle } from "@/components/theme-mode-toggle"
-import { createClient } from '@/utils/supabase/client'
+import { cn } from "@/lib/utils"
+
+const navbar = [
+  {
+    title: "Dashboard",
+    tooltip: "Dashboard",
+    href: "/",
+    icon: Home,
+  },
+  {
+    title: "Mitglieder",
+    tooltip: "Mitglieder",
+    href: "/mitglieder",
+    icon: Users2,
+  },
+  {
+    title: "Alarme",
+    tooltip: "Alarme",
+    href: "/alarme",
+    icon: Siren,
+  },
+]
 
 export default function AppLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = createClient()
   const pathname = usePathname()
 
   // Generate breadcrumbs based on current path
@@ -74,66 +95,25 @@ export default function AppLayout({
             <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
             <span className="sr-only">Vereinsmanager</span>
           </Link>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="/"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <Home className="h-5 w-5" />
-                <span className="sr-only">Dashboard</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Dashboard</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="/mitglieder"
-                className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <Users className="h-5 w-5" />
-                <span className="sr-only">Mitglieder</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Mitglieder</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <Package className="h-5 w-5" />
-                <span className="sr-only">Products</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Products</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <Users2 className="h-5 w-5" />
-                <span className="sr-only">Customers</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Customers</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <LineChart className="h-5 w-5" />
-                <span className="sr-only">Analytics</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Analytics</TooltipContent>
-          </Tooltip>
+          {navbar.map((link, index) => (
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={link.href}
+                  className={cn("flex h-9 w-9 items-center justify-center rounded-lg",
+                    pathname == link.href ?
+                      "bg-accent text-accent-foreground" :
+                      "text-muted-foreground",
+                    "transition-colors hover:text-foreground md:h-8 md:w-8"
+                  )}
+                >
+                  <link.icon className="h-5 w-5" />
+                  <span className="sr-only">{link.title}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">{link.tooltip}</TooltipContent>
+            </Tooltip>
+          ))}
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-4">
           <Tooltip>
@@ -168,34 +148,20 @@ export default function AppLayout({
                   <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
                   <span className="sr-only">Vereinsmanager</span>
                 </Link>
-                <Link
-                  href="/"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Home className="h-5 w-5" />
-                  Dashboard
-                </Link>
-                <Link
-                  href="/mitglieder"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Users className="h-5 w-5" />
-                  Mitglieder
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-foreground"
-                >
-                  <Package className="h-5 w-5" />
-                  Products
-                </Link>
-                <Link
-                  href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Users2 className="h-5 w-5" />
-                  Customers
-                </Link>
+                {navbar.map((link, index) => (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    className={cn("flex items-center gap-4 px-2.5",
+                      pathname == link.href ?
+                        "text-muted-foreground hover:text-foreground" :
+                        "text-foreground"
+                    )}
+                  >
+                    <link.icon className="h-5 w-5" />
+                    {link.title}
+                  </Link>
+                ))}
                 <Link
                   href="#"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"

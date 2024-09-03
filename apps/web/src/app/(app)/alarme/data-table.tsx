@@ -25,8 +25,6 @@ import { DataTablePagination } from "@/components/table/datatable-pagination"
 import { useState } from "react"
 import { DataTableViewOptions } from "@/components/table/datatable-view-options"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Contact } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]

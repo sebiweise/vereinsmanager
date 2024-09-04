@@ -16,16 +16,43 @@ function helperAge(age: string) {
     return { startAge: 0, endAge: 100 };
 }
 
+function formatDate(date: Date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
 function helperDateRange(year: string | null, range: string | null) {
     const currentDate = new Date();
 
-    let startDate: Date = new Date(`${year ? year : currentDate.getFullYear() - 1}-01-01`);
-    let endDate: Date = new Date(`${year ? year : currentDate.getFullYear() - 1}-12-31`);
+    const targetYear = year ? parseInt(year, 10) : currentDate.getFullYear() - 1;
+    let startDate: Date = new Date(Date.UTC(targetYear, 0, 1, 0, 0, 0));
+    let endDate: Date = new Date(Date.UTC(targetYear, 11, 31, 23, 59, 59));
 
     if (range) {
         const [rawStartDate, rawEndDate] = range.split("-");
-        startDate = rawStartDate ? new Date(rawStartDate) : startDate;
-        endDate = rawEndDate ? new Date(rawEndDate) : endDate;
+
+        if (rawStartDate) {
+            const [day, month, year] = rawStartDate.split(".").map(Number);
+            if (day !== undefined && month !== undefined && year !== undefined) {
+                startDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+            }
+        }
+
+        if (rawEndDate) {
+            const [day, month, year] = rawEndDate.split(".").map(Number);
+            if (day !== undefined && month !== undefined && year !== undefined) {
+                endDate = new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
+            }
+        }
     }
 
     return { startDate, endDate };
@@ -46,8 +73,9 @@ export async function fetchAlarmData(
     if (year !== null || range != null) {
         // Parse the year or range
         const { startDate, endDate } = helperDateRange(year, range);
-        query.gte("datum", startDate.toISOString());
-        query.lte("datum", endDate.toISOString());
+
+        query.gte("datum", startDate.toUTCString());
+        query.lte("datum", endDate.toUTCString());
     }
 
     const { data, error } = await query;

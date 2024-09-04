@@ -46,7 +46,6 @@ export default async function IndexPage({
 
   return (
     <div>
-      <DateRangePicker />
       <Dashboard alarme={AlarmData} />
     </ div>
   )

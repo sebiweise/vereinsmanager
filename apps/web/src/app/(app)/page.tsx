@@ -1,35 +1,53 @@
 import { Tables } from "@/types/database.types";
-import { createClient } from '@/utils/supabase/server';
 import { Dashboard } from "./components/dashboard";
 import { DateRangePicker } from "./components/date-range-picker";
+import { fetchAlarmData, fetchMitgliederData } from "./actions/kpi";
 
-async function getData({ startDate, endDate }: { startDate: Date, endDate: Date }): Promise<Tables<'alarme'>[]> {
-  const supabase = createClient();
-  const { data: alarme, error } = await supabase
-    .from("alarme")
-    .select()
-    .lte("datum", endDate.toISOString())
-    .gte("datum", startDate.toISOString());
+async function getData({ year, range, age }: SearchParams): Promise<{ AlarmData: Tables<'alarme'>[]; MitgliederData: Tables<'mitglieder'>[] }> {
+  const [
+    AlarmData,
+    MitgliederData,
+  ] = await Promise.all([
+    fetchAlarmData(
+      year,
+      range,
+      "*"
+    ),
+    fetchMitgliederData(
+      age,
+    ),
+  ]);
 
-  if (error)
-    console.error(error)
-
-  return alarme || [];
+  return { AlarmData, MitgliederData };
 }
 
-export default async function IndexPage() {
-  var startDate = new Date("2023-01-01");
-  var endDate = new Date("2023-12-31");
+export type SearchParams = {
+  year: string | null;
+  range: string | null;
+  age: string | null;
+};
 
-  const data = await getData({
-    startDate,
-    endDate
-  })
+export default async function IndexPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const {
+    year,
+    range,
+    age,
+  } = searchParams;
+
+  const { AlarmData } = await getData({
+    year,
+    range,
+    age,
+  });
 
   return (
     <div>
       <DateRangePicker />
-      <Dashboard alarme={data} />
+      <Dashboard alarme={AlarmData} />
     </ div>
   )
 }

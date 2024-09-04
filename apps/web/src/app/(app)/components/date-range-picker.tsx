@@ -13,13 +13,15 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import { useState } from "react"
 
 export function DateRangePicker({
     className,
 }: React.HTMLAttributes<HTMLDivElement>) {
-    const [date, setDate] = React.useState<DateRange | undefined>({
-        from: new Date(2022, 0, 20),
-        to: addDays(new Date(2022, 0, 20), 20),
+    const currentDate = new Date();
+    const [date, setDate] = useState<DateRange | undefined>({
+        from: new Date(`${currentDate.getFullYear() - 1}-01-01`),
+        to: new Date(`${currentDate.getFullYear() - 1}-12-31`),
     })
 
     return (

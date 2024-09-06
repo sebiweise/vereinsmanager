@@ -59,9 +59,21 @@ export const columns: ColumnDef<Tables<'alarme'>>[] = [
         ),
     },
     {
+        accessorKey: "einsatzort",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Einsatzort" />
+        ),
+    },
+    {
         accessorKey: "staerke",
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Stärke" />
+        ),
+    },
+    {
+        accessorKey: "kommentar",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Kommentar" />
         ),
     },
     {

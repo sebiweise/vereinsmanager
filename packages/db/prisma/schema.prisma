@@ -13,10 +13,10 @@ datasource db {
 model Alarm {
   einsatznummer    String   @id
   datum            String
-  einsatzstichwort String
-  staerke          Int
-  einsatzort       String
-  kommentar        String
+  einsatzstichwort String?
+  staerke          Int?
+  einsatzort       String?
+  kommentar        String?
   created_at       DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -26,6 +26,8 @@ model Alarm {
 enum MitgliederStatus {
   Aktiv
   Ehrenabteilung
+  Familie
+  Interessent
   Inaktiv
 
   @@schema("public")

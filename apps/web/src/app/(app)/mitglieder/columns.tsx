@@ -4,9 +4,9 @@ import { DataTableColumnHeader } from "@/components/table/datatable-column-heade
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
-import { Tables } from "@/types/database.types"
+import { Prisma } from "db"
 
-export const columns: ColumnDef<Tables<'mitglieder'>>[] = [
+export const columns: ColumnDef<Prisma.MitgliedGetPayload<{}>>[] = [
     {
         id: "select",
         header: ({ table }) => (

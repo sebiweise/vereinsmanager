@@ -1,10 +1,7 @@
 "use server";
 
-import { runQuery } from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
 import { helperDateRange } from "@/lib/utils";
-import { Tables } from "@/types/database.types";
-import { revalidatePath } from "next/cache";
+import { Prisma } from "db";
 
 function helperAge(age: string) {
     const [rawStartAge, rawEndAge] = age.split("-");
@@ -35,8 +32,8 @@ export async function fetchAlarmData(
     year: string | null,
     range: string | null,
     select: string
-): Promise<Tables<"alarme">[]> {
-    const supabase = createClient();
+): Promise<Prisma.AlarmGetPayload<{}>[]> {
+    const supabase: any = null;
 
     let query = supabase
         .from("alarme")
@@ -58,13 +55,13 @@ export async function fetchAlarmData(
         throw error;
     }
 
-    return data as unknown as Tables<"alarme">[];
+    return data as unknown as Prisma.AlarmGetPayload<{}>[];
 }
 
 export async function fetchMitgliederData(
     age: string | null,
-): Promise<Tables<"mitglieder">[]> {
-    const supabase = createClient();
+): Promise<Prisma.MitgliedGetPayload<{}>[]> {
+    const supabase: any = null;
 
     let query = supabase.from("mitglieder").select("*");
 
@@ -82,361 +79,361 @@ export async function fetchMitgliederData(
         throw error;
     }
 
-    return data as unknown as Tables<"mitglieder">[];
+    return data as unknown as Prisma.MitgliedGetPayload<{}>[];
 }
 
-export async function fetchRevenueData(
-    month: string = "all",
-    audience?: string | null,
-    contentType?: string | null,
-    satisfaction?: string | null,
-    location?: string | null,
-    age?: string | null,
-    platform?: string | null,
-    campaignId?: string | null
-): Promise<{ CampaignMonth: string; Revenue: string }[]> {
-    let query = `
-    WITH filtered_campaigns AS (
-      SELECT DISTINCT "CampaignID"
-      FROM subscriber_aggregated_data
-      WHERE 1 = 1
-  `;
+// export async function fetchRevenueData(
+//     month: string = "all",
+//     audience?: string | null,
+//     contentType?: string | null,
+//     satisfaction?: string | null,
+//     location?: string | null,
+//     age?: string | null,
+//     platform?: string | null,
+//     campaignId?: string | null
+// ): Promise<{ CampaignMonth: string; Revenue: string }[]> {
+//     let query = `
+//     WITH filtered_campaigns AS (
+//       SELECT DISTINCT "CampaignID"
+//       FROM subscriber_aggregated_data
+//       WHERE 1 = 1
+//   `;
 
-    const conditions = [];
+//     const conditions = [];
 
-    if (audience) {
-        conditions.push(`"AudienceType" = '${audience}'`);
-    }
+//     if (audience) {
+//         conditions.push(`"AudienceType" = '${audience}'`);
+//     }
 
-    if (contentType) {
-        conditions.push(`"ContentType" = '${contentType}'`);
-    }
+//     if (contentType) {
+//         conditions.push(`"ContentType" = '${contentType}'`);
+//     }
 
-    if (satisfaction) {
-        conditions.push(`"Satisfaction" = '${satisfaction}'`);
-    }
+//     if (satisfaction) {
+//         conditions.push(`"Satisfaction" = '${satisfaction}'`);
+//     }
 
-    if (location) {
-        conditions.push(`"Location" = '${location}'`);
-    }
+//     if (location) {
+//         conditions.push(`"Location" = '${location}'`);
+//     }
 
-    if (platform) {
-        conditions.push(`"Platform" = '${platform}'`);
-    }
+//     if (platform) {
+//         conditions.push(`"Platform" = '${platform}'`);
+//     }
 
-    if (campaignId) {
-        conditions.push(`"CampaignID" = '${campaignId}'`);
-    }
+//     if (campaignId) {
+//         conditions.push(`"CampaignID" = '${campaignId}'`);
+//     }
 
-    if (age) {
-        const { startAge, endAge } = helperAge(age);
-        conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
-    }
+//     if (age) {
+//         const { startAge, endAge } = helperAge(age);
+//         conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+//     }
 
-    if (month && month !== "all") {
-        conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
-    }
+//     if (month && month !== "all") {
+//         conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+//     }
 
-    if (conditions.length > 0) {
-        query += `
-      AND ${conditions.join(" AND ")}
-    `;
-    }
+//     if (conditions.length > 0) {
+//         query += `
+//       AND ${conditions.join(" AND ")}
+//     `;
+//     }
 
-    query += `
-    )
-    SELECT
-      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
-      SUM("Revenue") AS "Revenue"
-    FROM campaign
-    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
-    group by "CampaignMonth";
-  `;
-    const result = await runQuery(query);
-    revalidatePath("/dashboard");
-    return result.data as { CampaignMonth: string; Revenue: string }[];
-}
+//     query += `
+//     )
+//     SELECT
+//       TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+//       SUM("Revenue") AS "Revenue"
+//     FROM campaign
+//     WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+//     group by "CampaignMonth";
+//   `;
+//     const result = await runQuery(query);
+//     revalidatePath("/dashboard");
+//     return result.data as { CampaignMonth: string; Revenue: string }[];
+// }
 
-export async function fetchBudgetData(
-    month: string = "all",
-    audience?: string | null,
-    contentType?: string | null,
-    satisfaction?: string | null,
-    location?: string | null,
-    age?: string | null,
-    platform?: string | null,
-    campaignId?: string | null
-): Promise<{ CampaignMonth: string; Budget: string }[]> {
-    let query = `
-    WITH filtered_campaigns AS (
-      SELECT DISTINCT "CampaignID"
-      FROM subscriber_aggregated_data
-      WHERE 1 = 1
-  `;
+// export async function fetchBudgetData(
+//     month: string = "all",
+//     audience?: string | null,
+//     contentType?: string | null,
+//     satisfaction?: string | null,
+//     location?: string | null,
+//     age?: string | null,
+//     platform?: string | null,
+//     campaignId?: string | null
+// ): Promise<{ CampaignMonth: string; Budget: string }[]> {
+//     let query = `
+//     WITH filtered_campaigns AS (
+//       SELECT DISTINCT "CampaignID"
+//       FROM subscriber_aggregated_data
+//       WHERE 1 = 1
+//   `;
 
-    const conditions = [];
+//     const conditions = [];
 
-    if (audience) {
-        conditions.push(`"AudienceType" = '${audience}'`);
-    }
+//     if (audience) {
+//         conditions.push(`"AudienceType" = '${audience}'`);
+//     }
 
-    if (contentType) {
-        conditions.push(`"ContentType" = '${contentType}'`);
-    }
+//     if (contentType) {
+//         conditions.push(`"ContentType" = '${contentType}'`);
+//     }
 
-    if (satisfaction) {
-        conditions.push(`"Satisfaction" = '${satisfaction}'`);
-    }
+//     if (satisfaction) {
+//         conditions.push(`"Satisfaction" = '${satisfaction}'`);
+//     }
 
-    if (location) {
-        conditions.push(`"Location" = '${location}'`);
-    }
+//     if (location) {
+//         conditions.push(`"Location" = '${location}'`);
+//     }
 
-    if (age) {
-        const { startAge, endAge } = helperAge(age);
-        conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
-    }
-    if (platform) {
-        conditions.push(`"Platform" = '${platform}'`);
-    }
-    if (campaignId) {
-        conditions.push(`"CampaignID" = '${campaignId}'`);
-    }
+//     if (age) {
+//         const { startAge, endAge } = helperAge(age);
+//         conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+//     }
+//     if (platform) {
+//         conditions.push(`"Platform" = '${platform}'`);
+//     }
+//     if (campaignId) {
+//         conditions.push(`"CampaignID" = '${campaignId}'`);
+//     }
 
-    if (month && month !== "all") {
-        conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
-    }
-    if (conditions.length > 0) {
-        query += `
-      AND ${conditions.join(" AND ")}
-    `;
-    }
+//     if (month && month !== "all") {
+//         conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+//     }
+//     if (conditions.length > 0) {
+//         query += `
+//       AND ${conditions.join(" AND ")}
+//     `;
+//     }
 
-    query += `
-    )
-    SELECT
-      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
-      SUM("Budget") AS "Budget"
-    FROM campaign
-    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
-    group by "CampaignMonth";
-  `;
+//     query += `
+//     )
+//     SELECT
+//       TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+//       SUM("Budget") AS "Budget"
+//     FROM campaign
+//     WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+//     group by "CampaignMonth";
+//   `;
 
-    const result = await runQuery(query);
+//     const result = await runQuery(query);
 
-    revalidatePath("/dashboard");
-    return result.data as { CampaignMonth: string; Budget: string }[];
-}
+//     revalidatePath("/dashboard");
+//     return result.data as { CampaignMonth: string; Budget: string }[];
+// }
 
-export async function fetchImpressionData(
-    month: string = "all",
-    audience?: string | null,
-    contentType?: string | null,
-    satisfaction?: string | null,
-    location?: string | null,
-    age?: string | null,
-    platform?: string | null,
-    campaignId?: string | null
-): Promise<{ CampaignMonth: string; Impressions: string }[]> {
-    let query = `
-    WITH filtered_campaigns AS (
-      SELECT DISTINCT "CampaignID"
-      FROM subscriber_aggregated_data
-      WHERE 1 = 1
-  `;
+// export async function fetchImpressionData(
+//     month: string = "all",
+//     audience?: string | null,
+//     contentType?: string | null,
+//     satisfaction?: string | null,
+//     location?: string | null,
+//     age?: string | null,
+//     platform?: string | null,
+//     campaignId?: string | null
+// ): Promise<{ CampaignMonth: string; Impressions: string }[]> {
+//     let query = `
+//     WITH filtered_campaigns AS (
+//       SELECT DISTINCT "CampaignID"
+//       FROM subscriber_aggregated_data
+//       WHERE 1 = 1
+//   `;
 
-    const conditions = [];
+//     const conditions = [];
 
-    if (audience) {
-        conditions.push(`"AudienceType" = '${audience}'`);
-    }
+//     if (audience) {
+//         conditions.push(`"AudienceType" = '${audience}'`);
+//     }
 
-    if (contentType) {
-        conditions.push(`"ContentType" = '${contentType}'`);
-    }
+//     if (contentType) {
+//         conditions.push(`"ContentType" = '${contentType}'`);
+//     }
 
-    if (satisfaction) {
-        conditions.push(`"Satisfaction" = '${satisfaction}'`);
-    }
+//     if (satisfaction) {
+//         conditions.push(`"Satisfaction" = '${satisfaction}'`);
+//     }
 
-    if (location) {
-        conditions.push(`"Location" = '${location}'`);
-    }
+//     if (location) {
+//         conditions.push(`"Location" = '${location}'`);
+//     }
 
-    if (age) {
-        const { startAge, endAge } = helperAge(age);
-        conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
-    }
-    if (platform) {
-        conditions.push(`"Platform" = '${platform}'`);
-    }
-    if (campaignId) {
-        conditions.push(`"CampaignID" = '${campaignId}'`);
-    }
+//     if (age) {
+//         const { startAge, endAge } = helperAge(age);
+//         conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+//     }
+//     if (platform) {
+//         conditions.push(`"Platform" = '${platform}'`);
+//     }
+//     if (campaignId) {
+//         conditions.push(`"CampaignID" = '${campaignId}'`);
+//     }
 
-    if (month && month !== "all") {
-        conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
-    }
-    if (conditions.length > 0) {
-        query += `
-      AND ${conditions.join(" AND ")}
-    `;
-    }
+//     if (month && month !== "all") {
+//         conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+//     }
+//     if (conditions.length > 0) {
+//         query += `
+//       AND ${conditions.join(" AND ")}
+//     `;
+//     }
 
-    query += `
-    )
-    SELECT
-      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
-      SUM("Impressions") AS "Impressions"
-    FROM campaign
-    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
-    group by "CampaignMonth";
-  `;
+//     query += `
+//     )
+//     SELECT
+//       TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+//       SUM("Impressions") AS "Impressions"
+//     FROM campaign
+//     WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+//     group by "CampaignMonth";
+//   `;
 
-    const result = await runQuery(query);
+//     const result = await runQuery(query);
 
-    revalidatePath("/dashboard");
-    return result.data as { CampaignMonth: string; Impressions: string }[];
-}
+//     revalidatePath("/dashboard");
+//     return result.data as { CampaignMonth: string; Impressions: string }[];
+// }
 
-export async function fetchClicksData(
-    month: string = "all",
-    audience?: string | null,
-    contentType?: string | null,
-    satisfaction?: string | null,
-    location?: string | null,
-    age?: string | null,
-    platform?: string | null,
-    campaignId?: string | null
-): Promise<{ CampaignMonth: string; Clicks: string }[]> {
-    let query = `
-    WITH filtered_campaigns AS (
-      SELECT DISTINCT "CampaignID"
-      FROM subscriber_aggregated_data
-      WHERE 1 = 1
-  `;
+// export async function fetchClicksData(
+//     month: string = "all",
+//     audience?: string | null,
+//     contentType?: string | null,
+//     satisfaction?: string | null,
+//     location?: string | null,
+//     age?: string | null,
+//     platform?: string | null,
+//     campaignId?: string | null
+// ): Promise<{ CampaignMonth: string; Clicks: string }[]> {
+//     let query = `
+//     WITH filtered_campaigns AS (
+//       SELECT DISTINCT "CampaignID"
+//       FROM subscriber_aggregated_data
+//       WHERE 1 = 1
+//   `;
 
-    const conditions = [];
+//     const conditions = [];
 
-    if (audience) {
-        conditions.push(`"AudienceType" = '${audience}'`);
-    }
+//     if (audience) {
+//         conditions.push(`"AudienceType" = '${audience}'`);
+//     }
 
-    if (contentType) {
-        conditions.push(`"ContentType" = '${contentType}'`);
-    }
+//     if (contentType) {
+//         conditions.push(`"ContentType" = '${contentType}'`);
+//     }
 
-    if (satisfaction) {
-        conditions.push(`"Satisfaction" = '${satisfaction}'`);
-    }
+//     if (satisfaction) {
+//         conditions.push(`"Satisfaction" = '${satisfaction}'`);
+//     }
 
-    if (location) {
-        conditions.push(`"Location" = '${location}'`);
-    }
+//     if (location) {
+//         conditions.push(`"Location" = '${location}'`);
+//     }
 
-    if (age) {
-        const { startAge, endAge } = helperAge(age);
-        conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
-    }
-    if (platform) {
-        conditions.push(`"Platform" = '${platform}'`);
-    }
-    if (campaignId) {
-        conditions.push(`"CampaignID" = '${campaignId}'`);
-    }
+//     if (age) {
+//         const { startAge, endAge } = helperAge(age);
+//         conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+//     }
+//     if (platform) {
+//         conditions.push(`"Platform" = '${platform}'`);
+//     }
+//     if (campaignId) {
+//         conditions.push(`"CampaignID" = '${campaignId}'`);
+//     }
 
-    if (month && month !== "all") {
-        conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
-    }
-    if (conditions.length > 0) {
-        query += `
-      AND ${conditions.join(" AND ")}
-    `;
-    }
+//     if (month && month !== "all") {
+//         conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+//     }
+//     if (conditions.length > 0) {
+//         query += `
+//       AND ${conditions.join(" AND ")}
+//     `;
+//     }
 
-    query += `
-    )
-    SELECT
-      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
-      SUM("Clicks") AS "Clicks"
-    FROM campaign
-    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
-    group by "CampaignMonth";
-  `;
+//     query += `
+//     )
+//     SELECT
+//       TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+//       SUM("Clicks") AS "Clicks"
+//     FROM campaign
+//     WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+//     group by "CampaignMonth";
+//   `;
 
-    const result = await runQuery(query);
+//     const result = await runQuery(query);
 
-    revalidatePath("/dashboard");
-    return result.data as { CampaignMonth: string; Clicks: string }[];
-}
+//     revalidatePath("/dashboard");
+//     return result.data as { CampaignMonth: string; Clicks: string }[];
+// }
 
-export async function fetchSubsData(
-    month: string = "all",
-    audience?: string | null,
-    contentType?: string | null,
-    satisfaction?: string | null,
-    location?: string | null,
-    age?: string | null,
-    platform?: string | null,
-    campaignId?: string | null
-): Promise<{ CampaignMonth: string; NewSubscriptions: string }[]> {
-    let query = `
-    WITH filtered_campaigns AS (
-      SELECT DISTINCT "CampaignID"
-      FROM subscriber_aggregated_data
-      WHERE 1 = 1
-  `;
+// export async function fetchSubsData(
+//     month: string = "all",
+//     audience?: string | null,
+//     contentType?: string | null,
+//     satisfaction?: string | null,
+//     location?: string | null,
+//     age?: string | null,
+//     platform?: string | null,
+//     campaignId?: string | null
+// ): Promise<{ CampaignMonth: string; NewSubscriptions: string }[]> {
+//     let query = `
+//     WITH filtered_campaigns AS (
+//       SELECT DISTINCT "CampaignID"
+//       FROM subscriber_aggregated_data
+//       WHERE 1 = 1
+//   `;
 
-    const conditions = [];
+//     const conditions = [];
 
-    if (audience) {
-        conditions.push(`"AudienceType" = '${audience}'`);
-    }
+//     if (audience) {
+//         conditions.push(`"AudienceType" = '${audience}'`);
+//     }
 
-    if (contentType) {
-        conditions.push(`"ContentType" = '${contentType}'`);
-    }
+//     if (contentType) {
+//         conditions.push(`"ContentType" = '${contentType}'`);
+//     }
 
-    if (satisfaction) {
-        conditions.push(`"Satisfaction" = '${satisfaction}'`);
-    }
+//     if (satisfaction) {
+//         conditions.push(`"Satisfaction" = '${satisfaction}'`);
+//     }
 
-    if (location) {
-        conditions.push(`"Location" = '${location}'`);
-    }
+//     if (location) {
+//         conditions.push(`"Location" = '${location}'`);
+//     }
 
-    if (age) {
-        const { startAge, endAge } = helperAge(age);
-        conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
-    }
-    if (platform) {
-        conditions.push(`"Platform" = '${platform}'`);
-    }
-    if (campaignId) {
-        conditions.push(`"CampaignID" = '${campaignId}'`);
-    }
+//     if (age) {
+//         const { startAge, endAge } = helperAge(age);
+//         conditions.push(`"Age" BETWEEN ${startAge} AND ${endAge}`);
+//     }
+//     if (platform) {
+//         conditions.push(`"Platform" = '${platform}'`);
+//     }
+//     if (campaignId) {
+//         conditions.push(`"CampaignID" = '${campaignId}'`);
+//     }
 
-    if (month && month !== "all") {
-        conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
-    }
-    if (conditions.length > 0) {
-        query += `
-      AND ${conditions.join(" AND ")}
-    `;
-    }
+//     if (month && month !== "all") {
+//         conditions.push(`"CampaignMonth" = '${month.slice(0, 3)}'`);
+//     }
+//     if (conditions.length > 0) {
+//         query += `
+//       AND ${conditions.join(" AND ")}
+//     `;
+//     }
 
-    query += `
-    )
-    SELECT
-      TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
-      SUM("NewSubscriptions") AS "NewSubscriptions"
-    FROM campaign
-    WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
-    group by "CampaignMonth";
-  `;
+//     query += `
+//     )
+//     SELECT
+//       TO_CHAR(DATE_TRUNC('month', TO_DATE("StartDate", 'DD.MM.YYYY')), 'Mon') AS "CampaignMonth",
+//       SUM("NewSubscriptions") AS "NewSubscriptions"
+//     FROM campaign
+//     WHERE "CampaignID" IN (SELECT "CampaignID" FROM filtered_campaigns)
+//     group by "CampaignMonth";
+//   `;
 
-    const result = await runQuery(query);
+//     const result = await runQuery(query);
 
-    revalidatePath("/dashboard");
-    return result.data as { CampaignMonth: string; NewSubscriptions: string }[];
-}
+//     revalidatePath("/dashboard");
+//     return result.data as { CampaignMonth: string; NewSubscriptions: string }[];
+// }

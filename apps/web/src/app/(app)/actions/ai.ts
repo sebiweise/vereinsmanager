@@ -1,18 +1,16 @@
 "use server";
 
-import { runQuery } from "@/lib/db";
 import { format } from "date-fns";
 import {
     fetchMitgliederData,
 } from "./kpi";
-import { GoodOverBadquery } from "./query";
-import { Tables } from "@/types/database.types";
+import { Prisma } from "db";
 
 interface MitgliederOverTimeData {
     Month: string;
     NewMitglieder: number;
 }
-function groupMitgliederByMonth(mitgliederData: Tables<"mitglieder">[]): {
+function groupMitgliederByMonth(mitgliederData: Prisma.MitgliedGetPayload<{}>[]): {
     [month: string]: number;
 } {
     const result: { [monthKey: string]: number } = {};
@@ -86,7 +84,7 @@ export async function calculateGrowthRateForChart(
     return growthData;
 }
 
-export async function GoodOverBadCampaign() {
-    const result = await runQuery(GoodOverBadquery);
-    return result;
-}
+// export async function GoodOverBadCampaign() {
+//     const result = await runQuery(GoodOverBadquery);
+//     return result;
+// }

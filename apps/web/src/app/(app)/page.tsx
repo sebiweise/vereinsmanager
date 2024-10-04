@@ -1,9 +1,9 @@
-import { Tables } from "@/types/database.types";
 import { Dashboard } from "./components/dashboard";
 import { DateRangePicker } from "./components/date-range-picker";
 import { fetchAlarmData, fetchMitgliederData } from "./actions/kpi";
+import { Prisma } from "db";
 
-async function getData({ year, range, age }: SearchParams): Promise<{ AlarmData: Tables<'alarme'>[]; MitgliederData: Tables<'mitglieder'>[] }> {
+async function getData({ year, range, age }: SearchParams): Promise<{ AlarmData: Prisma.AlarmGetPayload<{}>[]; MitgliederData: Prisma.MitgliedGetPayload<{}>[] }> {
   const [
     AlarmData,
     MitgliederData,

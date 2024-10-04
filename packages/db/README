@@ -1,0 +1,4 @@
+# db
+
+## Migration
+pnpm dlx prisma migrate dev --name 

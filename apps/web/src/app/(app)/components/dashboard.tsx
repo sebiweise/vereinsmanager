@@ -24,10 +24,10 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Tables } from "@/types/database.types"
 import { DateRangePicker } from "./date-range-picker"
+import { Prisma } from "db"
 
-function calculateAverageStaerke(arr: Tables<'alarme'>[]): number {
+function calculateAverageStaerke(arr: Prisma.AlarmGetPayload<{}>[]): number {
     // If the array is empty, return 0 or handle it as needed
     if (arr.length === 0) return 0;
 
@@ -40,7 +40,7 @@ function calculateAverageStaerke(arr: Tables<'alarme'>[]): number {
     return Math.ceil(average);
 }
 
-function getAverageTime(objects: Tables<'alarme'>[]): Date | null {
+function getAverageTime(objects: Prisma.AlarmGetPayload<{}>[]): Date | null {
     if (objects.length === 0) {
         return null; // Return null if the array is empty
     }
@@ -56,7 +56,7 @@ interface MonthlyAverageStaerke {
     date: string;
     averageStaerke: number;
 }
-function getMonthlyAverageStaerke(data: Tables<'alarme'>[]): MonthlyAverageStaerke[] {
+function getMonthlyAverageStaerke(data: Prisma.AlarmGetPayload<{}>[]): MonthlyAverageStaerke[] {
     const groupedData: { [key: string]: { totalStaerke: number; count: number } } = {};
 
     data.forEach(({ datum, staerke }) => {
@@ -97,7 +97,7 @@ function getMonthlyAverageStaerke(data: Tables<'alarme'>[]): MonthlyAverageStaer
     return monthlyAverages;
 }
 
-function calculateAverageEinsaetze(arr: Tables<'alarme'>[]): number {
+function calculateAverageEinsaetze(arr: Prisma.AlarmGetPayload<{}>[]): number {
     // If the array is empty, return 0 or handle it as needed
     if (arr.length === 0) return 0;
 
@@ -114,7 +114,7 @@ interface MonthlyEinsaetze {
     date: string;
     einsaetze: number;
 }
-function getMonthlyEinsaetze(data: Tables<'alarme'>[]): MonthlyEinsaetze[] {
+function getMonthlyEinsaetze(data: Prisma.AlarmGetPayload<{}>[]): MonthlyEinsaetze[] {
     const groupedData: { [key: string]: { count: number } } = {};
 
     data.forEach(({ datum }) => {
@@ -152,7 +152,7 @@ function getMonthlyEinsaetze(data: Tables<'alarme'>[]): MonthlyEinsaetze[] {
     return monthlyAverages;
 }
 
-export function Dashboard({ alarme }: { alarme: Tables<'alarme'>[] }) {
+export function Dashboard({ alarme }: { alarme: Prisma.AlarmGetPayload<{}>[] }) {
     return (
         <div className="flex flex-col items-center w-full min-h-screen p-4 space-y-8">
             <DateRangePicker />

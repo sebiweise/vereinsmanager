@@ -1,13 +1,14 @@
-import { Tables } from "@/types/database.types";
+import { Prisma } from "db";
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
-import { createClient } from '@/lib/supabase/server';
+import { db } from "@/lib/db";
 
-async function getData(): Promise<Tables<'alarme'>[]> {
-    const supabase = createClient();
-    const { data: alarme } = await supabase.from("alarme").select();
+export const dynamic = "force-dynamic";
 
-    return alarme || [];
+async function getData(): Promise<Prisma.AlarmGetPayload<{}>[]> {
+    const alarme = await db.alarm.findMany();
+
+    return alarme;
 }
 
 export default async function AlarmePage() {

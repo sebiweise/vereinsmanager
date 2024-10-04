@@ -1,13 +1,14 @@
-import { Tables } from "@/types/database.types";
+import { Prisma } from "db";
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
-import { createClient } from '@/lib/supabase/server';
+import { db } from "@/lib/db";
 
-async function getData(): Promise<Tables<'mitglieder'>[]> {
-    const supabase = createClient();
-    const { data: mitglieder } = await supabase.from("mitglieder").select();
+export const dynamic = "force-dynamic";
 
-    return mitglieder || [];
+async function getData(): Promise<Prisma.MitgliedGetPayload<{}>[]> {
+    const mitglieder = await db.mitglied.findMany();
+
+    return mitglieder;
 }
 
 export default async function MitgliederPage() {

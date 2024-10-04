@@ -1,5 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
+import { Prisma } from "db";
 import { type NextRequest, NextResponse } from 'next/server';
+import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 
 export const GET = async (req: NextRequest) => {
     const { method } = req;
@@ -31,7 +33,6 @@ export const POST = async (req: NextRequest) => {
 
 const handleExportContacts = async (req: NextRequest) => {
     try {
-        const supabase = createClient();
         // Parse request body to get list of IDs
         const { ids } = await req.json();
 
@@ -41,30 +42,22 @@ const handleExportContacts = async (req: NextRequest) => {
             });
         }
 
-        const {
-            data: { user },
-            error: userError,
-        } = await supabase.auth.getUser();
+        const { userId } = auth();
 
-        if (userError || !user) {
-            return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-                status: 401,
-            });
+        if (!userId) {
+            return new NextResponse('Unauthorized', { status: 401 })
         }
 
-        // Fetch contacts from Supabase with matching IDs
-        const { data: contacts, error: contactsError } = await supabase
-            .from('mitglieder')
-            .select('*')
-            .in('id', ids);
+        // Fetch contacts with matching IDs
+        const mitglieder = await db.mitglied.findMany({
+            where: {
+                id: {
+                    in: ids
+                }
+            }
+        });
 
-        if (contactsError) {
-            return new Response(JSON.stringify({ error: 'Failed to fetch contacts' }), {
-                status: 500,
-            });
-        }
-
-        const vCardData = convertToVCard(contacts);
+        const vCardData = convertToVCard(mitglieder);
         return new Response(vCardData, {
             status: 200,
             headers: { 'Content-Type': 'text/vcard' },
@@ -77,29 +70,15 @@ const handleExportContacts = async (req: NextRequest) => {
 };
 
 const handlePropfind = async (req: NextRequest) => {
-    const supabase = createClient();
     // Extract user session or credentials
-    const {
-        data: { user },
-        error: userError,
-    } = await supabase.auth.getUser();
+    const { userId } = auth();
 
-    if (userError || !user) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-            status: 401,
-        });
+    if (!userId) {
+        return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    // Fetch contacts from Supabase
-    const { data: mitglieder, error: mitgliederError } = await supabase
-        .from('mitglieder')
-        .select('*');
-
-    if (mitgliederError) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch contacts' }), {
-            status: 500,
-        });
-    }
+    // Fetch contacts
+    const mitglieder = await db.mitglied.findMany();
 
     // Respond with the formatted vCard data
     const vCardData = convertToVCard(mitglieder);

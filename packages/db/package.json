@@ -1,0 +1,19 @@
+{
+    "name": "db",
+    "version": "0.0.1",
+    "main": "index.ts",
+    "scripts": {
+      "db:generate": "prisma generate",
+      "db:migrate:deploy": "prisma migrate deploy",
+      "db:migrate:dev": "pnpm prisma migrate dev",
+      "db:migrate:vercel": "if test \"$NEXT_PUBLIC_VERCEL_ENV\" = \"preview\" ; then prisma db push --accept-data-loss --skip-generate ; else prisma migrate deploy ; fi",
+      "db:push": "prisma db push --accept-data-loss --skip-generate",
+      "db:studio": "prisma studio --browser none"
+    },
+    "dependencies": {
+      "@prisma/client": "^5.19.0"
+    },
+    "devDependencies": {
+      "prisma": "^5.19.0"
+    }
+  }

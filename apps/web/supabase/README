@@ -1,3 +1,0 @@
-# Supabase
-
-pnpm dlx supabase gen types --lang=typescript --project-id "iwkbwtjabweitiuinqqp" --schema public > src/types/database.types.ts

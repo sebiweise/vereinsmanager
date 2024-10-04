@@ -1,0 +1,80 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+  output          = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public"]
+}
+
+model Alarm {
+  einsatznummer    String   @id
+  datum            String
+  einsatzstichwort String
+  staerke          Int
+  einsatzort       String
+  kommentar        String
+  created_at       DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@schema("public")
+}
+
+enum MitgliederStatus {
+  Aktiv
+  Ehrenabteilung
+  Inaktiv
+
+  @@schema("public")
+}
+
+model Mitglied {
+  id                Int                 @id @default(autoincrement())
+  nachname          String
+  vorname           String
+  rolle             Int
+  geburtsdatum      Int
+  email             String
+  TelefonOnMitglied TelefonOnMitglied[]
+  strasse           String
+  stadt             String
+  postleitzahl      String
+  status            MitgliederStatus
+  created_at        DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@schema("public")
+}
+
+model TelefonOnMitglied {
+  mitglied   Mitglied @relation(fields: [mitgliedId], references: [id])
+  mitgliedId Int
+  telefon    Telefon  @relation(fields: [telefonId], references: [id])
+  telefonId  String
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([mitgliedId, telefonId])
+  @@schema("public")
+}
+
+enum TelefonType {
+  mobil
+  festnetz
+
+  @@schema("public")
+}
+
+model Telefon {
+  id                String              @id @default(uuid())
+  telefonnummer     String
+  type              TelefonType
+  created_at        DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  TelefonOnMitglied TelefonOnMitglied[]
+
+  @@schema("public")
+}

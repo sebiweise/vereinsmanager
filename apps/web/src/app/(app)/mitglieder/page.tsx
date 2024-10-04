@@ -5,8 +5,16 @@ import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-async function getData(): Promise<Prisma.MitgliedGetPayload<{}>[]> {
-    const mitglieder = await db.mitglied.findMany();
+async function getData(): Promise<Prisma.MitgliedGetPayload<{ include: { telefon: { include: { tag: true } } } }>[]> {
+    const mitglieder = await db.mitglied.findMany({
+        include: {
+            telefon: {
+                include: {
+                    tag: true
+                }
+            }
+        }
+    });
 
     return mitglieder;
 }

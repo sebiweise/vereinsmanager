@@ -1,5 +1,4 @@
 import { Dashboard } from "./components/dashboard";
-import { DateRangePicker } from "./components/date-range-picker";
 import { fetchAlarmData, fetchMitgliederData } from "./actions/kpi";
 import { Prisma } from "db";
 

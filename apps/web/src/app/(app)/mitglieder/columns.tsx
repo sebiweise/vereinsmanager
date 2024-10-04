@@ -5,8 +5,9 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { Prisma } from "db"
+import { Badge } from "@/components/ui/badge"
 
-export const columns: ColumnDef<Prisma.MitgliedGetPayload<{}>>[] = [
+export const columns: ColumnDef<Prisma.MitgliedGetPayload<{ include: { telefon: { include: { tag: true } } } }>>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -85,17 +86,25 @@ export const columns: ColumnDef<Prisma.MitgliedGetPayload<{}>>[] = [
         },
     },
     {
-        accessorKey: "telefon_mobil",
+        accessorKey: "telefon",
         header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Mobil" />
+            <DataTableColumnHeader column={column} title="Telefon" />
         ),
-        enableSorting: false,
-    },
-    {
-        accessorKey: "telefon_festnetz",
-        header: ({ column }) => (
-            <DataTableColumnHeader column={column} title="Festnetz" />
-        ),
+        cell: ({ row }) => {
+            const telefon: Prisma.TelefonGetPayload<{ include: { tag: true } }>[] = row.getValue("telefon");
+
+            return (
+                <>
+                    {telefon && telefon.map((phone) => {
+                        return <>
+                            <div className="font-medium mb-1">
+                                {phone.telefonnummer} {phone.tag && <Badge className="ml-1" variant="outline">{phone.tag.name}</Badge>}
+                            </div>
+                        </>
+                    })}
+                </>
+            )
+        },
         enableSorting: false,
     },
     {

@@ -37,15 +37,15 @@ export default async function IndexPage({
     age,
   } = searchParams;
 
-  const { AlarmData } = await getData({
-    year,
-    range,
-    age,
-  });
+  // const { AlarmData } = await getData({
+  //   year,
+  //   range,
+  //   age,
+  // });
 
   return (
     <div>
-      <Dashboard alarme={AlarmData} />
+      <Dashboard alarme={[]} />
     </ div>
   )
 }

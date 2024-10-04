@@ -34,49 +34,42 @@ enum MitgliederStatus {
 }
 
 model Mitglied {
-  id                Int                 @id @default(autoincrement())
-  nachname          String
-  vorname           String
-  rolle             String?
-  geburtsdatum      DateTime            @db.Date
-  email             String
-  TelefonOnMitglied TelefonOnMitglied[]
-  strasse           String
-  stadt             String
-  postleitzahl      String
-  status            MitgliederStatus
-  created_at        DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id           Int              @id @default(autoincrement())
+  nachname     String
+  vorname      String
+  rolle        String?
+  geburtsdatum DateTime?        @db.Date
+  email        String?
+  telefon      Telefon[]
+  strasse      String?
+  stadt        String?
+  postleitzahl String?
+  status       MitgliederStatus
+  created_at   DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
   @@schema("public")
 }
 
-model TelefonOnMitglied {
-  mitglied   Mitglied @relation(fields: [mitgliedId], references: [id])
-  mitgliedId Int
-  telefon    Telefon  @relation(fields: [telefonId], references: [id])
-  telefonId  String
-  created_at DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@id([mitgliedId, telefonId])
-  @@schema("public")
-}
-
-enum TelefonType {
-  mobil
-  festnetz
+model TelefonTag {
+  id         String    @id @default(uuid())
+  name       String
+  telefon    Telefon[]
+  created_at DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@schema("public")
 }
 
 model Telefon {
-  id                String              @id @default(uuid())
-  telefonnummer     String
-  type              TelefonType
-  created_at        DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  TelefonOnMitglied TelefonOnMitglied[]
+  id            String      @id @default(uuid())
+  telefonnummer String
+  tag           TelefonTag? @relation(fields: [telefonTagId], references: [id])
+  telefonTagId  String?
+  mitglied      Mitglied?   @relation(fields: [mitgliedId], references: [id])
+  mitgliedId    Int?
+  created_at    DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@schema("public")
 }

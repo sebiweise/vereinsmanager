@@ -65,6 +65,7 @@ model GruppeMitglied {
   created_at DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  @@unique([mitgliedId, gruppeId])
   @@schema("public")
 }
 
@@ -95,11 +96,17 @@ model Telefon {
 
 // Auth Schema
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String          @unique
+  email         String    @unique
   emailVerified DateTime?
   image         String?
+
+  // password data
+  passwordHash         String?
+  invalidLoginAttempts Int       @default(0)
+  lockedAt             DateTime?
+
   accounts      Account[]
   sessions      Session[]
   // Optional for WebAuthn support

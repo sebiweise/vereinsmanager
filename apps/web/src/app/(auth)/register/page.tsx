@@ -1,6 +1,5 @@
 'use client'
 
-import { providerMap } from "@/lib/auth/providers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
@@ -8,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -18,12 +16,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { signUpSchema } from "@/lib/zod/schemas/auth"
 import z from "@/lib/zod"
-import { credentialLogin, providerLogin } from "@/lib/actions/user-login"
+import { createUserAccountAction } from "@/lib/actions/create-user-account"
+import { redirect } from "next/navigation"
 
-export default function LoginPage(props: {
+export default function RegisterPage(props: {
     searchParams: { callbackUrl: string | undefined }
 }) {
-    const loginForm = useForm<z.infer<typeof signUpSchema>>({
+    const registerForm = useForm<z.infer<typeof signUpSchema>>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
             email: "",
@@ -32,25 +31,25 @@ export default function LoginPage(props: {
     })
 
     function onSubmit(values: z.infer<typeof signUpSchema>) {
-        credentialLogin(values);
+        createUserAccountAction(values);
     }
 
     return (
         <div className="flex h-screen w-full items-center justify-center px-4">
             <Card className="mx-auto max-w-sm">
                 <CardHeader>
-                    <CardTitle className="text-2xl">Einloggen</CardTitle>
+                    <CardTitle className="text-2xl">Registrierung</CardTitle>
                     <CardDescription>
-                        Gib deine E-Mail-Adresse und dein Passwort ein, um dich anzumelden.
+                        Gib deine E-Mail-Adresse und dein Passwort ein, um dich registrieren.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-4">
-                        <Form {...loginForm}>
-                            <form onSubmit={loginForm.handleSubmit(onSubmit)}>
+                        <Form {...registerForm}>
+                            <form onSubmit={registerForm.handleSubmit(onSubmit)}>
                                 <div className="grid gap-2">
                                     <FormField
-                                        control={loginForm.control}
+                                        control={registerForm.control}
                                         name="email"
                                         render={({ field }) => (
                                             <FormItem>
@@ -65,7 +64,7 @@ export default function LoginPage(props: {
                                 </div>
                                 <div className="grid gap-2">
                                     <FormField
-                                        control={loginForm.control}
+                                        control={registerForm.control}
                                         name="password"
                                         render={({ field }) => (
                                             <FormItem>
@@ -73,37 +72,21 @@ export default function LoginPage(props: {
                                                 <FormControl>
                                                     <Input type="password" placeholder="********" {...field} />
                                                 </FormControl>
-                                                <FormDescription>
-                                                    <Link href="#" className="ml-auto inline-block text-sm underline">
-                                                        Passwort vergessen?
-                                                    </Link>
-                                                </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
                                 <Button type="submit" className="w-full">
-                                    Einloggen
+                                    Registrieren
                                 </Button>
                             </form>
                         </Form>
-                        {Object.values(providerMap).map((provider) => (
-                            <form
-                                action={async () => {
-                                    await providerLogin(provider.id, props);
-                                }}
-                            >
-                                <Button type="submit" variant="outline" className="w-full">
-                                    Einloggen mit {provider.name}
-                                </Button>
-                            </form>
-                        ))}
                     </div>
                     <div className="mt-4 text-center text-sm">
-                        Noch keinen Account?&nbsp;
-                        <Link href="/register" className="underline">
-                            Registrieren
+                        Hast du bereits einen Account?&nbsp;
+                        <Link href="/login" className="underline">
+                            Einloggen
                         </Link>
                     </div>
                 </CardContent>

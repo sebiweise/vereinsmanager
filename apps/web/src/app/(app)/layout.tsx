@@ -6,13 +6,11 @@ import { usePathname } from 'next/navigation'
 import {
   Home,
   LineChart,
-  Package,
   Package2,
   PanelLeft,
   Search,
   Settings,
   Siren,
-  Users,
   Users2,
 } from "lucide-react"
 import {

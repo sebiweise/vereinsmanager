@@ -3,8 +3,13 @@ import authConfig from "@/lib/auth/config"
 
 const { auth } = NextAuth(authConfig)
 
+const publicRoutes = [
+    "/login",
+    "/register"
+]
+
 export default auth((req) => {
-    if (!req.auth && req.nextUrl.pathname !== "/login") {
+    if (!req.auth && !publicRoutes.includes(req.nextUrl.pathname)) {
         const newUrl = new URL("/login", req.nextUrl.origin)
         return Response.redirect(newUrl)
     }

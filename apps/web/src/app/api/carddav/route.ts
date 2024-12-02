@@ -1,7 +1,5 @@
-import { Prisma } from "db";
 import { type NextRequest, NextResponse } from 'next/server';
 import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
 
 export const GET = async (req: NextRequest) => {
     const { method } = req;
@@ -42,11 +40,11 @@ const handleExportContacts = async (req: NextRequest) => {
             });
         }
 
-        const { userId } = auth();
+        // const { userId } = auth();
 
-        if (!userId) {
-            return new NextResponse('Unauthorized', { status: 401 })
-        }
+        // if (!userId) {
+        //     return new NextResponse('Unauthorized', { status: 401 })
+        // }
 
         // Fetch contacts with matching IDs
         const mitglieder = await db.mitglied.findMany({
@@ -71,11 +69,11 @@ const handleExportContacts = async (req: NextRequest) => {
 
 const handlePropfind = async (req: NextRequest) => {
     // Extract user session or credentials
-    const { userId } = auth();
+    // const { userId } = auth();
 
-    if (!userId) {
-        return new NextResponse('Unauthorized', { status: 401 })
-    }
+    // if (!userId) {
+    //     return new NextResponse('Unauthorized', { status: 401 })
+    // }
 
     // Fetch contacts
     const mitglieder = await db.mitglied.findMany();

@@ -7,28 +7,19 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["public"]
+  schemas  = ["public", "auth"]
 }
 
 model Alarm {
-  einsatznummer    String   @id
+  einsatznummer    String  @id
   datum            String
   einsatzstichwort String?
   staerke          Int?
   einsatzort       String?
   kommentar        String?
-  created_at       DateTime @default(now())
-  updatedAt        DateTime @updatedAt
 
-  @@schema("public")
-}
-
-enum MitgliederStatus {
-  Aktiv
-  Ehrenabteilung
-  Familie
-  Interessent
-  Inaktiv
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
 }
@@ -37,26 +28,53 @@ model Mitglied {
   id           Int              @id @default(autoincrement())
   nachname     String
   vorname      String
-  rolle        String?
   geburtsdatum DateTime?        @db.Date
   email        String?
   telefon      Telefon[]
   strasse      String?
   stadt        String?
   postleitzahl String?
-  status       MitgliederStatus
-  created_at   DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  gruppen      GruppeMitglied[]
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model Gruppe {
+  id         Int              @id @default(autoincrement())
+  name       String           @unique
+  mitglieder GruppeMitglied[]
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model GruppeMitglied {
+  id             Int       @id @default(autoincrement())
+  gruppeId       Int
+  gruppe         Gruppe    @relation(fields: [gruppeId], references: [id])
+  mitgliedId     Int
+  mitglied       Mitglied  @relation(fields: [mitgliedId], references: [id])
+  position       String
+  beitrittsdatum DateTime? @db.Date
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
 }
 
 model TelefonTag {
-  id         String    @id @default(uuid())
-  name       String
-  telefon    Telefon[]
-  created_at DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id      String    @id @default(uuid())
+  name    String
+  telefon Telefon[]
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
 }
@@ -68,8 +86,87 @@ model Telefon {
   telefonTagId  String?
   mitglied      Mitglied?   @relation(fields: [mitgliedId], references: [id])
   mitgliedId    Int?
-  created_at    DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
+}
+
+// Auth Schema
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("auth")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@schema("auth")
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("auth")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@schema("auth")
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+  @@schema("auth")
 }

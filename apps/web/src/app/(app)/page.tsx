@@ -1,51 +1,26 @@
-import { Dashboard } from "./components/dashboard";
-import { fetchAlarmData, fetchMitgliederData } from "./actions/kpi";
-import { Prisma } from "db";
+import { Metadata } from "next"
+import MemberAgeChart from "@/components/dashboard/member-age-chart"
+import BirthdayList from "@/components/dashboard/birthday-list"
+import EmergencyDriveStats from "@/components/dashboard/emergency-drive-stats"
+import RecentActivities from "@/components/dashboard/recent-activities"
+import MemberList from "@/components/dashboard/member-list"
 
-async function getData({ year, range, age }: SearchParams): Promise<{ AlarmData: Prisma.AlarmGetPayload<{}>[]; MitgliederData: Prisma.MitgliedGetPayload<{}>[] }> {
-  const [
-    AlarmData,
-    MitgliederData,
-  ] = await Promise.all([
-    fetchAlarmData(
-      year,
-      range,
-      "*"
-    ),
-    fetchMitgliederData(
-      age,
-    ),
-  ]);
-
-  return { AlarmData, MitgliederData };
+export const metadata: Metadata = {
+  title: "Dashboard | Vereinsmanager",
 }
 
-export type SearchParams = {
-  year: string | null;
-  range: string | null;
-  age: string | null;
-};
-
-export default async function IndexPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  const {
-    year,
-    range,
-    age,
-  } = searchParams;
-
-  // const { AlarmData } = await getData({
-  //   year,
-  //   range,
-  //   age,
-  // });
-
+export default function DashboardPage() {
   return (
-    <div>
-      <Dashboard alarme={[]} />
-    </ div>
+    <div className="flex-1 space-y-4 p-4 pt-6">
+      <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <EmergencyDriveStats />
+        <BirthdayList />
+        <RecentActivities />
+        <MemberAgeChart />
+      </div>
+      <MemberList />
+    </div>
   )
 }
+

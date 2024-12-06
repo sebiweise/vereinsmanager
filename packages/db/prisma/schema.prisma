@@ -11,24 +11,15 @@ datasource db {
 }
 
 model Alarm {
-  einsatznummer    String   @id
+  einsatznummer    String  @id
   datum            String
   einsatzstichwort String?
   staerke          Int?
   einsatzort       String?
   kommentar        String?
-  created_at       DateTime @default(now())
-  updatedAt        DateTime @updatedAt
 
-  @@schema("public")
-}
-
-enum MitgliederStatus {
-  Aktiv
-  Ehrenabteilung
-  Familie
-  Interessent
-  Inaktiv
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
 }
@@ -37,26 +28,53 @@ model Mitglied {
   id           Int              @id @default(autoincrement())
   nachname     String
   vorname      String
-  rolle        String?
   geburtsdatum DateTime?        @db.Date
   email        String?
   telefon      Telefon[]
   strasse      String?
   stadt        String?
   postleitzahl String?
-  status       MitgliederStatus
-  created_at   DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  gruppen      GruppeMitglied[]
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model Gruppe {
+  id         Int              @id @default(autoincrement())
+  name       String           @unique
+  mitglieder GruppeMitglied[]
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@schema("public")
+}
+
+model GruppeMitglied {
+  id             Int       @id @default(autoincrement())
+  gruppeId       Int
+  gruppe         Gruppe    @relation(fields: [gruppeId], references: [id])
+  mitgliedId     Int
+  mitglied       Mitglied  @relation(fields: [mitgliedId], references: [id])
+  position       String
+  beitrittsdatum DateTime? @db.Date
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
 }
 
 model TelefonTag {
-  id         String    @id @default(uuid())
-  name       String
-  telefon    Telefon[]
-  created_at DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id      String    @id @default(uuid())
+  name    String
+  telefon Telefon[]
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
 }
@@ -68,8 +86,9 @@ model Telefon {
   telefonTagId  String?
   mitglied      Mitglied?   @relation(fields: [mitgliedId], references: [id])
   mitgliedId    Int?
-  created_at    DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@schema("public")
 }

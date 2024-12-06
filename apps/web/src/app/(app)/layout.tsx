@@ -12,14 +12,8 @@ import {
   Search,
   Settings,
   Siren,
-  Users,
   Users2,
 } from "lucide-react"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage
-} from "@/components/ui/avatar"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,14 +23,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   Sheet,
   SheetContent,
@@ -49,6 +35,7 @@ import {
 } from "@/components/ui/tooltip"
 import { ThemeModeToggle } from "@/components/theme-mode-toggle"
 import { cn } from "@/lib/utils"
+import { UserButton } from "@clerk/nextjs"
 
 const navbar = [
   {
@@ -200,28 +187,7 @@ export default function AppLayout({
             />
           </div>
           <ThemeModeToggle />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="overflow-hidden rounded-full"
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder-user.jpg" alt="@user" />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Mein Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Einstellungen</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserButton />
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
           {children}
